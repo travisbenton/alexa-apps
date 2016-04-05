@@ -1,0 +1,11 @@
+{
+  "private": "true",
+  "name": "Torchys_taco_of_the_month",
+  "version": "v1.0.0",
+  "description": "A skill for Amazon Alexa",
+  "scripts": {},
+  "dependencies": {
+    "cheerio": "^0.20.0",
+    "request": "^2.69.0"
+  }
+}
