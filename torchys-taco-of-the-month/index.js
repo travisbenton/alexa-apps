@@ -1,34 +1,43 @@
-var cheerio = require('cheerio');
-var request = require('request');
+/**
+ * This sample demonstrates a simple skill built with the Amazon Alexa Skills Kit.
+ * The Intent Schema, Custom Slots, and Sample Utterances for this skill, as well as
+ * testing instructions are located at http://amzn.to/1LzFrj6
+ *
+ * For additional samples, visit the Alexa Skills Kit Getting Started guide at
+ * http://amzn.to/1LGWsLG
+ */
+ 
+var https = require('https');
 
 // Route the incoming request based on type (LaunchRequest, IntentRequest,
 // etc.) The JSON body of the request is provided in the event parameter.
 exports.handler = function (event, context) {
-  try {
-	  console.log("event.session.application.applicationId=" + event.session.application.applicationId);
-	  if (event.session.new) {
-      onSessionStarted({requestId: event.request.requestId}, event.session);
-	  }
+    try {
+        console.log("event.session.application.applicationId=" + event.session.application.applicationId);
 
-	  if (event.request.type === "LaunchRequest") {
-      onLaunch(event.request,
-	      event.session,
-	      function callback(sessionAttributes, speechletResponse) {
-          context.succeed(buildResponse(sessionAttributes, speechletResponse));
-	      });
-	  } else if (event.request.type === "IntentRequest") {
-      onIntent(event.request,
-	      event.session,
-	      function callback(sessionAttributes, speechletResponse) {
-          context.succeed(buildResponse(sessionAttributes, speechletResponse));
-	      });
-	  } else if (event.request.type === "SessionEndedRequest") {
-      onSessionEnded(event.request, event.session);
-      context.succeed();
-	  }
-  } catch (e) {
-    context.fail("Exception: " + e);
-  }
+        if (event.session.new) {
+            onSessionStarted({requestId: event.request.requestId}, event.session);
+        }
+
+        if (event.request.type === "LaunchRequest") {
+            onLaunch(event.request,
+                event.session,
+                function callback(sessionAttributes, speechletResponse) {
+                    context.succeed(buildResponse(sessionAttributes, speechletResponse));
+                });
+        } else if (event.request.type === "IntentRequest") {
+            onIntent(event.request,
+                event.session,
+                function callback(sessionAttributes, speechletResponse) {
+                    context.succeed(buildResponse(sessionAttributes, speechletResponse));
+                });
+        } else if (event.request.type === "SessionEndedRequest") {
+            onSessionEnded(event.request, event.session);
+            context.succeed();
+        }
+    } catch (e) {
+        context.fail("Exception: " + e);
+    }
 };
 
 /**
@@ -37,16 +46,6 @@ exports.handler = function (event, context) {
 function onSessionStarted(sessionStartedRequest, session) {
     console.log("onSessionStarted requestId=" + sessionStartedRequest.requestId +
         ", sessionId=" + session.sessionId);
-}
-
-/**
- * Called when the user ends the session.
- * Is not called when the skill returns shouldEndSession=true.
- */
-function onSessionEnded(sessionEndedRequest, session) {
-    console.log("onSessionEnded requestId=" + sessionEndedRequest.requestId +
-        ", sessionId=" + session.sessionId);
-    // Add cleanup logic here
 }
 
 /**
@@ -67,71 +66,125 @@ function onIntent(intentRequest, session, callback) {
     console.log("onIntent requestId=" + intentRequest.requestId +
         ", sessionId=" + session.sessionId);
 
-    var intent = intentRequest.intent;
-    var intentName = intentRequest.intent.name;
+    var intent = intentRequest.intent,
+        intentName = intentRequest.intent.name;
 
     // Dispatch to your skill's intent handlers
-    torchysIntent(intent, session, callback);
+    if ("tacoOfTheMonth" === intentName) {
+        getTacoSpecials(callback);
+    } else if ("AMAZON.HelpIntent" === intentName) {
+        getHelpResponse(callback);
+    } else if ("AMAZON.StopIntent" === intentName || "AMAZON.CancelIntent" === intentName) {
+        callback({}, buildExitResponse());
+    } else {
+        throw "Invalid intent";
+    }
 }
 
+/**
+ * Called when the user ends the session.
+ * Is not called when the skill returns shouldEndSession=true.
+ */
+function onSessionEnded(sessionEndedRequest, session) {
+    console.log("onSessionEnded requestId=" + sessionEndedRequest.requestId +
+        ", sessionId=" + session.sessionId);
+    // Add cleanup logic here
+}
 
 // --------------- Functions that control the skill's behavior -----------------------
 
 function getWelcomeResponse(callback) {
-    // // If we wanted to initialize the session to have some attributes we could add those here.
-    // var sessionAttributes = {};
-    // var cardTitle = "Welcome";
-    // var speechOutput = "Welcome to the if app. Ask if DMX is in jail.";
-    // // If the user either does not reply to the welcome message or says something that is not
-    // // understood, they will be prompted again with this text.
-    // var repromptText = "Don't you want to know if DMX is in jail?";
-    // var shouldEndSession = true;
+    // If we wanted to initialize the session to have some attributes we could add those here.
+    var sessionAttributes = {};
+    var cardTitle = "Welcome";
+    var speechOutput = "Please ask me what the taco of the month is.";
+    // If the user either does not reply to the welcome message or says something that is not
+    // understood, they will be prompted again with this text.
+    var repromptText = "Please ask me what the taco of the month is by saying, " +
+        "what is the taco of the month";
+    var shouldEndSession = false;
 
-    // callback(sessionAttributes,
-    //   buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession)
-    // );
+    callback(sessionAttributes,
+        buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
 }
 
-function torchysIntent (intent, session, callback) {
-	request('http://torchystacos.com/menu/', function (error, response, body) {
-	  if (!error && response.statusCode == 200) {
-	    var $ = cheerio.load(body);
-	    var $totm = $('#taco-of-the-month').find('.single-menu-item').not('#empty');
-	    var name = $totm.find('h1').text();
-	    var description = $totm.find('p').text().toLowerCase();
-	    var response = 'Taco of the Month is ' + name + '. The ingredients are ' + description;
-	    var cardTitle = 'Torchys Taco of the Month'
+function getHelpResponse(callback) {
+    // If we wanted to initialize the session to have some attributes we could add those here.
+    var sessionAttributes = {};
+    var cardTitle = "Help";
+    var speechOutput = "This app tells you what the taco of the month is at Torchys Tacos. Try saying: What is the taco of the month?";
+    // If the user either does not reply to the welcome message or says something that is not
+    // understood, they will be prompted again with this text.
+    var repromptText = "Please ask me what the taco of the month is by saying, " +
+        "what is the taco of the month";
+    var shouldEndSession = false;
 
-	    callback({}, buildSpeechletResponse(cardTitle, response, "No", true));
-	  }
-	});
+    callback(sessionAttributes,
+        buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
 }
+
+function getTacoData(callback) {
+    https.get('https://tacos-as-a-service.herokuapp.com/torchys', function (res) {
+      res.on('data', function (d) {
+        callback(d);
+      });
+    
+    }).on('error', function (e) {
+      callback(null);
+      console.error(e);
+    });
+}
+
+function getTacoSpecials(callback) {
+    getTacoData(function (d) {
+        if (d) {
+            d = JSON.parse(d.toString());
+            callback({}, buildSpeechletResponse('Torchys Taco of the Month', d.tacoSpecial, 'I didn\'t understand that', true));
+        } else {
+            callback({}, buildSpeechletResponse('Torchys Taco of the Month', 'Sorry, I was unable to find any data', 'I didn\'t understand that', true));
+        }
+    })
+    
+}
+
+
+// --------------- Helpers that build all of the responses -----------------------
 
 function buildSpeechletResponse(title, output, repromptText, shouldEndSession) {
-  return {
-	  outputSpeech: {
-      type: "PlainText",
-      text: output
-	  },
-	  card: {
-      type: "Simple",
-      title: title,
-      content: output
-	  },
-	  reprompt: {
-      outputSpeech: {
-        type: "PlainText",
-        text: repromptText
-      }
-	  },
-	  shouldEndSession: shouldEndSession
-  };
+    return {
+        outputSpeech: {
+            type: "PlainText",
+            text: output
+        },
+        card: {
+            type: "Simple",
+            title: "Torchys Tacos - " + title,
+            content: "Current Status: " + output
+        },
+        reprompt: {
+            outputSpeech: {
+                type: "PlainText",
+                text: repromptText
+            }
+        },
+        shouldEndSession: shouldEndSession
+    };
+}
+
+function buildExitResponse() {
+    return {
+        outputSpeech: {
+            type: "PlainText",
+            text: "Goodbye"
+        },
+        shouldEndSession: true
+    };
 }
 
 function buildResponse(sessionAttributes, speechletResponse) {
-  return {
-    version: "1.0",
-    sessionAttributes: sessionAttributes,
-    response: speechletResponse
-  };
+    return {
+        version: "1.0",
+        sessionAttributes: sessionAttributes,
+        response: speechletResponse
+    };
 }
