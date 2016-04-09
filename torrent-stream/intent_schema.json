@@ -1,0 +1,17 @@
+{
+  "intents": [
+    {
+      "intent": "mediaSearchQuery",
+      "slots": [
+        {
+          "name": "media",
+          "type": "AMAZON.LITERAL"
+        }
+      ]
+    },
+
+    {
+      "intent": "AMAZON.HelpIntent"
+    }
+  ]
+}
