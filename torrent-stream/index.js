@@ -1,4 +1,5 @@
 var request = require('request');
+var MongoClient = require('mongodb').MongoClient;
 
 // Route the incoming request based on type (LaunchRequest, IntentRequest,
 // etc.) The JSON body of the request is provided in the event parameter.
@@ -106,32 +107,44 @@ function getMediaData (media, callback) {
   request(url, (error, response, body) => {
     if (!error && response.statusCode === 200) {
       callback(JSON.parse(body));
+    } else {
+      console.log(error, response.statusCode);
     }
   });
 }
 
-function getTrendResponse (trend, data) {
+function getTrendResponse (trend, db, data) {
   var filteredOutput = data.list
-    .filter((item) => item.category === 'Movies' || item.category === 'TV')
+    .filter(item => item.category === 'Movies' || item.category === 'TV')
     .map(item => ({
       title: item.title,
       category: item.category,
       seeds: item.seeds,
       magnet: `magnet:?xt=urn:btih:${item.hash}`
-    }));
-  var topMatch = (filteredOutput || [])[0] || {};
+    })) || [];
+  var topMatch = filteredOutput[0] || {};
   var title = topMatch.title;
   var seeds = topMatch.seeds;
+  var torrent = topMatch.magnet;
+  var insertDocument = (db, callback) => {
+    db.collection('torrents').insertOne({torrent}, (err, result) => {
+      console.log('Inserted into the torrents collection.');
+      callback();
+    });
+  };
 
+  insertDocument(db, () => db.close());
   return `The top search result for ${trend} is ${title}, with ${seeds} seeders`;
 }
 
 function getMedia (intent, session, callback) {
   var media = intent.slots.media.value;
   var cardTitle = `Search Results for ${media}`;
-
-  getMediaData(media, d => {
-    callback({}, buildSpeechletResponse(cardTitle, getTrendResponse(media, d), 'No', true));
+  var url = 'mongodb://master:PW@LOGIN.mlab.com:19980/heroku_cbmx7645';
+  MongoClient.connect(url, (err, db) => {
+    getMediaData(media, d => {
+      callback({}, buildSpeechletResponse(cardTitle, getTrendResponse(media, db, d), 'No', true));
+    });
   });
 }
 

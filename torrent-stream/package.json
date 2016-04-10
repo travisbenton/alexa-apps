@@ -4,6 +4,7 @@
   "description": "A terrible demo skill for the Amazon Echo, powered by the Search API",
   "main": "skill.js",
   "dependencies": {
+    "mongodb": "^2.1.16",
     "request": "^2.70.0"
   },
   "devDependencies": {},
