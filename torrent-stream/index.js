@@ -81,7 +81,6 @@ function onIntent (intentRequest, session, callback) {
  */
 function onSessionEnded (sessionEndedRequest, session) {
   console.log(`onSessionEnded requestId=${sessionEndedRequest.requestId}, sessionId=${session.sessionId}`);
-    // Add cleanup logic here
 }
 
 // --------------- Functions that control the skill's behavior -----------------------

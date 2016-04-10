@@ -1,7 +1,35 @@
-mediaSearchQuery to play {Game of Thrones | media}
-mediaSearchQuery to stream {Game of Thrones | media}
-mediaSearchQuery to download {Game of Thrones | media}
-mediaSearchQuery to load {Game of Thrones | media}
-mediaSearchQuery to chrome cast {Game of Thrones | media}
-mediaSearchQuery to cast {Game of Thrones | media}
-mediaSearchQuery to find {Game of Thrones | media}
+mediaSearchQuery to play {foo | media}
+mediaSearchQuery to play {foo bar | media}
+mediaSearchQuery to play {foo bar baz | media}
+mediaSearchQuery to play {foo bar baz biz | media}
+mediaSearchQuery to play {foo bar baz biz qux | media}
+mediaSearchQuery to stream {foo | media}
+mediaSearchQuery to stream {foo bar | media}
+mediaSearchQuery to stream {foo bar baz | media}
+mediaSearchQuery to stream {foo bar baz biz | media}
+mediaSearchQuery to stream {foo bar baz biz qux | media}
+mediaSearchQuery to download {foo | media}
+mediaSearchQuery to download {foo bar | media}
+mediaSearchQuery to download {foo bar baz | media}
+mediaSearchQuery to download {foo bar baz biz | media}
+mediaSearchQuery to download {foo bar baz biz qux | media}
+mediaSearchQuery to load {foo | media}
+mediaSearchQuery to load {foo bar | media}
+mediaSearchQuery to load {foo bar baz | media}
+mediaSearchQuery to load {foo bar baz biz | media}
+mediaSearchQuery to load {foo bar baz biz qux | media}
+mediaSearchQuery to chrome cast {foo | media}
+mediaSearchQuery to chrome cast {foo bar | media}
+mediaSearchQuery to chrome cast {foo bar baz | media}
+mediaSearchQuery to chrome cast {foo bar baz biz | media}
+mediaSearchQuery to chrome cast {foo bar baz biz qux | media}
+mediaSearchQuery to cast {foo | media}
+mediaSearchQuery to cast {foo bar | media}
+mediaSearchQuery to cast {foo bar baz | media}
+mediaSearchQuery to cast {foo bar baz biz | media}
+mediaSearchQuery to cast {foo bar baz biz qux | media}
+mediaSearchQuery to find {foo | media}
+mediaSearchQuery to find {foo bar | media}
+mediaSearchQuery to find {foo bar baz | media}
+mediaSearchQuery to find {foo bar baz biz | media}
+mediaSearchQuery to find {foo bar baz biz qux | media}
