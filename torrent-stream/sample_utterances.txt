@@ -1,7 +1,7 @@
-mediaSearchQuery to play {media}
-mediaSearchQuery to stream {media}
-mediaSearchQuery to download {media}
-mediaSearchQuery to load {media}
-mediaSearchQuery to chrome cast {media}
-mediaSearchQuery to cast {media}
-mediaSearchQuery to find {media}
+mediaSearchQuery to play {Game of Thrones | media}
+mediaSearchQuery to stream {Game of Thrones | media}
+mediaSearchQuery to download {Game of Thrones | media}
+mediaSearchQuery to load {Game of Thrones | media}
+mediaSearchQuery to chrome cast {Game of Thrones | media}
+mediaSearchQuery to cast {Game of Thrones | media}
+mediaSearchQuery to find {Game of Thrones | media}

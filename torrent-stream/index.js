@@ -2,9 +2,9 @@ var request = require('request');
 
 // Route the incoming request based on type (LaunchRequest, IntentRequest,
 // etc.) The JSON body of the request is provided in the event parameter.
-exports.handler = function (event, context) {
+exports.handler = (event, context) => {
   try {
-    console.log('event.session.application.applicationId=' + event.session.application.applicationId);
+    console.log(`event.session.application.applicationId=${event.session.application.applicationId}`);
 
     /**
      * Uncomment this if statement and populate with your skill's application ID to
@@ -37,7 +37,7 @@ exports.handler = function (event, context) {
       context.succeed();
     }
   } catch (e) {
-    context.fail('Exception: ' + e);
+    context.fail(`Exception: ${e}`);
   }
 };
 
@@ -45,16 +45,14 @@ exports.handler = function (event, context) {
  * Called when the session starts.
  */
 function onSessionStarted (sessionStartedRequest, session) {
-  console.log('onSessionStarted requestId=' + sessionStartedRequest.requestId +
-      ', sessionId=' + session.sessionId);
+  console.log(`onSessionStarted requestId=${sessionStartedRequest.requestId}, sessionId=${session.sessionId}`);
 }
 
 /**
  * Called when the user launches the skill without specifying what they want.
  */
 function onLaunch (launchRequest, session, callback) {
-  console.log('onLaunch requestId=' + launchRequest.requestId +
-    ', sessionId=' + session.sessionId);
+  console.log(`onLaunch requestId=${launchRequest.requestId}, sessionId=${session.sessionId}`);
 
   // Dispatch to your skill's launch.
   getWelcomeResponse(callback);
@@ -64,14 +62,13 @@ function onLaunch (launchRequest, session, callback) {
  * Called when the user specifies an intent for this skill.
  */
 function onIntent (intentRequest, session, callback) {
-  console.log('onIntent requestId=' + intentRequest.requestId +
-      ', sessionId=' + session.sessionId);
-
   var intent = intentRequest.intent;
   var intentName = intentRequest.intent.name;
 
+  console.log(`onIntent requestId=${intentRequest.requestId}, sessionId=${session.sessionId}`);
+
   // Dispatch to your skill's intent handlers
-  if ('TrendingTermIntent' === intentName) {
+  if ('mediaSearchQuery' === intentName) {
     getMedia(intent, session, callback);
   } else if ('AMAZON.HelpIntent' === intentName) {
     getWelcomeResponse(callback);
@@ -83,8 +80,7 @@ function onIntent (intentRequest, session, callback) {
  * Is not called when the skill returns shouldEndSession=true.
  */
 function onSessionEnded (sessionEndedRequest, session) {
-  console.log('onSessionEnded requestId=' + sessionEndedRequest.requestId +
-    ', sessionId=' + session.sessionId);
+  console.log(`onSessionEnded requestId=${sessionEndedRequest.requestId}, sessionId=${session.sessionId}`);
     // Add cleanup logic here
 }
 
@@ -116,7 +112,7 @@ function getMediaData (media, callback) {
 }
 
 function getTrendResponse (trend, data) {
-  var filteredOutput = JSON.parse(data).list
+  var filteredOutput = data.list
     .filter((item) => item.category === 'Movies' || item.category === 'TV')
     .map(item => ({
       title: item.title,
@@ -124,15 +120,16 @@ function getTrendResponse (trend, data) {
       seeds: item.seeds,
       magnet: `magnet:?xt=urn:btih:${item.hash}`
     }));
-  var title = filteredOutput[0].title;
-  var seeds = filteredOutput[0].seeds;
+  var topMatch = (filteredOutput || [])[0] || {};
+  var title = topMatch.title;
+  var seeds = topMatch.seeds;
 
   return `The top search result for ${trend} is ${title}, with ${seeds} seeders`;
 }
 
 function getMedia (intent, session, callback) {
   var media = intent.slots.media.value;
-  var cardTitle = 'Search Results for ' + media;
+  var cardTitle = `Search Results for ${media}`;
 
   getMediaData(media, d => {
     callback({}, buildSpeechletResponse(cardTitle, getTrendResponse(media, d), 'No', true));
@@ -148,8 +145,8 @@ function buildSpeechletResponse (title, output, repromptText, shouldEndSession) 
     },
     card: {
       type: 'Simple',
-      title: 'Torrent Stream - ' + title,
-      content: 'Top result - ' + output
+      title: `Torrent Stream - ${title}`,
+      content: `Top result - ${output}`
     },
     reprompt: {
       outputSpeech: {
@@ -161,10 +158,10 @@ function buildSpeechletResponse (title, output, repromptText, shouldEndSession) 
   };
 }
 
-function buildResponse (sessionAttributes, speechletResponse) {
+function buildResponse (sessionAttributes, response) {
   return {
     version: '1.0',
-    sessionAttributes: sessionAttributes,
-    response: speechletResponse
+    sessionAttributes,
+    response
   };
 }
